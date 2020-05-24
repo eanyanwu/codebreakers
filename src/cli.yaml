@@ -1,0 +1,38 @@
+name: codebreakers
+version: "1.0"
+author: "Eze Anyanwu <hello@ezeanyinabia.com>"
+about: "Implementation of historical ciphers from David Khan's Codebreakers book"
+subcommands:
+  - vigenere:
+      about: Alphabetic vigenere cipher
+      subcommands:
+        - encipher:
+            about: Encipher
+            args:
+              - plain-text:
+                  short: p
+                  long: plain-text
+                  takes_value: true
+                  required: true
+                  help: The text to encipher
+              - key:
+                  short: k
+                  long: key
+                  takes_value: true
+                  required: true
+                  help: The key to use for enciphering
+        - decipher:
+            about: Decipher
+            args:
+              - cipher-text:
+                  short: c
+                  long: cipher-text
+                  takes_value: true
+                  required: true
+                  help: The text to decipher
+              - key:
+                  short: k
+                  long: key
+                  takes_value: true
+                  required: true
+                  help: The key to use for deciphering

@@ -76,9 +76,14 @@ fn _normalize_output(output: Vec<u8>) -> String {
     let mut normalized = Vec::new();
 
     for (i, value) in output.into_iter().enumerate() {
-        // Add white space everythin 5 elements, except for the first element
+        // Add white space every 5 elements
         if i % 5 == 0 && i != 0 { 
             normalized.push(b' ');
+        }
+
+        // Add a new line every 25 elements
+        if i % 25 == 0 && i!= 0 {
+            normalized.push(b'\n');
         }
 
         normalized.push(value);
