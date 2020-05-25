@@ -36,3 +36,10 @@ subcommands:
                   takes_value: true
                   required: true
                   help: The key to use for deciphering
+  - letter-frequency:
+      about: Visualize the letter frequencies
+      args:
+          - INPUT:
+              help: The text to print letter frequencies for
+              required: true
+              index: 1
