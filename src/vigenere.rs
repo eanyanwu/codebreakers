@@ -10,15 +10,13 @@
 //! `P = C - K`
 
 use crate::errors::Error;
+use crate::common;
 
 /// Encipher `plain_text` with the Vigenere cipher under the key `key`
-pub fn encipher<K, P>(key: K, plain_text:P)-> Result<String, Error> 
-where
-    K: AsRef<[u8]>,
-    P: AsRef<[u8]> 
+pub fn encipher(key: &[u8], plain_text: &[u8])-> Result<String, Error> 
 {
-    let key = _normalize_input(key.as_ref().to_vec());
-    let plain_text = _normalize_input(plain_text.as_ref().to_vec());
+    let key = common::normalize_input(key);
+    let plain_text = common::normalize_input(plain_text);
 
     let mut key_counter = 0usize;
     let mut plain_text_counter = 0usize;
@@ -33,17 +31,14 @@ where
         plain_text_counter += 1;
     }
 
-    Ok(_normalize_output(enciphered))
+    Ok(common::format_output(enciphered))
 }
 
 /// Decipher `cipher_text` with the Vigenere cipher under the key `key`
-pub fn decipher<K, C>(key: K, cipher_text: C) -> Result<String, Error> 
-where
-    K: AsRef<[u8]>,
-    C: AsRef<[u8]>
+pub fn decipher(key: &[u8], cipher_text: &[u8]) -> Result<String, Error> 
 {
-    let key = _normalize_input(key.as_ref().to_vec());
-    let cipher_text = _normalize_input(cipher_text.as_ref().to_vec());
+    let key = common::normalize_input(key);
+    let cipher_text = common::normalize_input(cipher_text);
 
     let mut key_counter = 0usize;
     let mut cipher_text_counter = 0usize;
@@ -58,38 +53,7 @@ where
         cipher_text_counter += 1;
     }
 
-    Ok(_normalize_output(deciphered))
-}
-
-fn _normalize_input(input: Vec<u8>) -> Vec<u8> {
-    // Uppercase everything
-    let uppercased = input.to_ascii_uppercase();
-
-    // Filter any whitespace
-    let filtered = uppercased.into_iter().filter(|&elem| { elem != b' ' }).collect::<Vec<u8>>();
-
-    filtered
-}
-
-fn _normalize_output(output: Vec<u8>) -> String {
-    // Split the output into chunks of 5 bytes seperated by a space
-    let mut normalized = Vec::new();
-
-    for (i, value) in output.into_iter().enumerate() {
-        // Add white space every 5 elements
-        if i % 5 == 0 && i != 0 { 
-            normalized.push(b' ');
-        }
-
-        // Add a new line every 25 elements
-        if i % 25 == 0 && i!= 0 {
-            normalized.push(b'\n');
-        }
-
-        normalized.push(value);
-    }
-
-    String::from_utf8(normalized).unwrap()
+    Ok(common::format_output(deciphered))
 }
 
 fn _encipher_ascii_byte(plain_char: u8, key: u8) ->  Result<u8, Error> {
@@ -122,13 +86,13 @@ mod tests {
 
     #[test]
     fn test_encipher_vigenere() {
-        let key = "TYPE";
+        let key = b"TYPE";
 
-        let enciphered = vigenere::encipher(key, "NOW IS THE TIME FOR ALL GOOD MEN").unwrap();
+        let enciphered = vigenere::encipher(key, b"NOW IS THE TIME FOR ALL GOOD MEN").unwrap();
 
         assert_eq!(enciphered, "GMLML RWIMG BIYMG EEJVS HBBIG");
         
-        let deciphered = vigenere::decipher(key, enciphered).unwrap();
+        let deciphered = vigenere::decipher(key, enciphered.as_bytes()).unwrap();
 
         assert_eq!(deciphered, "NOWIS THETI MEFOR ALLGO ODMEN");
     }
