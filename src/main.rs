@@ -2,6 +2,8 @@ use clap::load_yaml;
 use clap::App;
 use codebreakers::vigenere;
 use codebreakers::letter_frequency;
+use std::io;
+use std::io::Read;
 
 
 fn main() {
@@ -10,25 +12,30 @@ fn main() {
 
     match args.subcommand() {
         ("vigenere", Some(vigenere)) => {
-            match vigenere.subcommand() {
+            let mut input = Vec::new();
+
+            io::stdin().read_to_end(&mut input).unwrap();
+
+            let output = match vigenere.subcommand() {
                 ("encipher", Some(encipher_cmd)) => {
-                    let plain_text = encipher_cmd.value_of("plain-text").unwrap();
                     let key = encipher_cmd.value_of("key").unwrap();
-                    let cipher_text = vigenere::encipher(key.as_bytes(), plain_text.as_bytes()).unwrap();
-                    println!("{}", cipher_text);
+                    vigenere::encipher(key.as_bytes(), &input).unwrap()
                 },
                 ("decipher", Some(decipher_cmd)) => {
-                    let cipher_text = decipher_cmd.value_of("cipher-text").unwrap();
                     let key = decipher_cmd.value_of("key").unwrap();
-                    let plain_text = vigenere::decipher(key.as_bytes(), cipher_text.as_bytes()).unwrap();
-                    println!("{}", plain_text);
+                    vigenere::decipher(key.as_bytes(), &input).unwrap()
                 },
-                _                            => {}
-            }
+                _                            => { String::new() }
+            };
+
+            println!("{}", output);
         },
-        ("letter-frequency", Some(letter_frequency_cmd)) => {
-            let text = letter_frequency_cmd.value_of("INPUT").unwrap();
-            let frequencies = letter_frequency::get_letter_frequency(text.as_bytes());
+        ("letter-frequency", Some(_)) => {
+            let mut text = Vec::new();
+            io::stdin().read_to_end(&mut text).unwrap();
+
+            let frequencies = letter_frequency::get_letter_frequency(&text);
+
             letter_frequency::print_histogram(&frequencies);
         }
         _                       => {}

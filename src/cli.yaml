@@ -9,12 +9,6 @@ subcommands:
         - encipher:
             about: Encipher
             args:
-              - plain-text:
-                  short: p
-                  long: plain-text
-                  takes_value: true
-                  required: true
-                  help: The text to encipher
               - key:
                   short: k
                   long: key
@@ -24,12 +18,6 @@ subcommands:
         - decipher:
             about: Decipher
             args:
-              - cipher-text:
-                  short: c
-                  long: cipher-text
-                  takes_value: true
-                  required: true
-                  help: The text to decipher
               - key:
                   short: k
                   long: key
@@ -38,8 +26,3 @@ subcommands:
                   help: The key to use for deciphering
   - letter-frequency:
       about: Visualize the letter frequencies
-      args:
-          - INPUT:
-              help: The text to print letter frequencies for
-              required: true
-              index: 1
