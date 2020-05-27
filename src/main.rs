@@ -1,6 +1,6 @@
 use clap::load_yaml;
 use clap::App;
-use codebreakers::vigenere;
+use codebreakers::vigenere_standard;
 use codebreakers::letter_frequency;
 use std::io;
 use std::io::Read;
@@ -19,11 +19,11 @@ fn main() {
             let output = match vigenere.subcommand() {
                 ("encipher", Some(encipher_cmd)) => {
                     let key = encipher_cmd.value_of("key").unwrap();
-                    vigenere::encipher(key.as_bytes(), &input).unwrap()
+                    vigenere_standard::encipher(key.as_bytes(), &input).unwrap()
                 },
                 ("decipher", Some(decipher_cmd)) => {
                     let key = decipher_cmd.value_of("key").unwrap();
-                    vigenere::decipher(key.as_bytes(), &input).unwrap()
+                    vigenere_standard::decipher(key.as_bytes(), &input).unwrap()
                 },
                 _                            => { String::new() }
             };
