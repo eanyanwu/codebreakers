@@ -5,7 +5,8 @@ Implementation the various techniques mentioned in David Khan's book "The Codebr
 
 # What's in here
 
-- [x] The Vigenere cipher
+- [x] The standard Vigenere cipher
+- [x] The autokey Vigenere cipher
 - [x] Letter frequency analysis
 
 
