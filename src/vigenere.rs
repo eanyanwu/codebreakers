@@ -15,8 +15,13 @@ use crate::common;
 /// Encipher `plain_text` with the Vigenere cipher under the key `key`
 pub fn encipher(key: &[u8], plain_text: &[u8])-> Result<String, Error> 
 {
-    let key = common::normalize_input(key);
-    let plain_text = common::normalize_input(plain_text);
+    let key = common::sanitize_text(key);
+    let plain_text = common::sanitize_text(plain_text);
+    
+    // If no key was passed, we don't encrypt
+    if key.len() == 0 {
+        return Ok(common::format_output(plain_text));
+    }
 
     let mut key_counter = 0usize;
     let mut plain_text_counter = 0usize;
@@ -37,8 +42,8 @@ pub fn encipher(key: &[u8], plain_text: &[u8])-> Result<String, Error>
 /// Decipher `cipher_text` with the Vigenere cipher under the key `key`
 pub fn decipher(key: &[u8], cipher_text: &[u8]) -> Result<String, Error> 
 {
-    let key = common::normalize_input(key);
-    let cipher_text = common::normalize_input(cipher_text);
+    let key = common::sanitize_text(key);
+    let cipher_text = common::sanitize_text(cipher_text);
 
     let mut key_counter = 0usize;
     let mut cipher_text_counter = 0usize;
@@ -83,6 +88,7 @@ fn _decipher_ascii_byte(cipher_char: u8, key: u8) -> Result<u8, Error> {
 #[cfg(test)]
 mod tests {
     use crate::vigenere;
+    use quickcheck::quickcheck;
 
     #[test]
     fn test_encipher_vigenere() {
@@ -95,5 +101,15 @@ mod tests {
         let deciphered = vigenere::decipher(key, enciphered.as_bytes()).unwrap();
 
         assert_eq!(deciphered, "NOWIS THETI MEFOR ALLGO ODMEN");
+    }
+
+    quickcheck! {
+        fn output_is_uppercased_alphabetic(key: Vec<u8>, plain_text: Vec<u8>) -> bool {
+            let res = vigenere::encipher(&key, &plain_text).unwrap();
+
+            res.bytes().all(|b| {
+                (b >= b'A' && b <= b'Z') || b == b' ' || b == b'\n'
+            })
+        }
     }
 }

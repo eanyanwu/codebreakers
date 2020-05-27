@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 clap = { version = "~2.27.0", features = ["yaml"] }
+quickcheck = "0.9"
+quickcheck_macros = "0.9"
