@@ -6,7 +6,7 @@ use std::collections::HashMap;
 
 pub fn get_letter_frequency(text: &[u8]) -> HashMap<u8, usize>
 {
-    let text = common::normalize_input(text);
+    let text = common::sanitize_text(text);
     let mut counts = HashMap::new();
 
     for character in text {

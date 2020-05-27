@@ -1,16 +1,12 @@
 //! Common operations
 
 
-/// Normalize user input
-/// 
-/// The text is:  
-/// (a) uppercased then,  
-/// (b) stripped of any non alphabetic characters
-pub fn normalize_input(input: &[u8]) -> Vec<u8> {
+/// Uppercases, and removes any non-alphabetic characters from the text
+pub fn sanitize_text(input: &[u8]) -> Vec<u8> {
     // Uppercase everything
     let uppercased = input.to_ascii_uppercase();
 
-    // Filter any whitespace
+    // Remove any non-alphabetic characters
     let filtered = uppercased.into_iter().filter(|&elem| { elem >= b'A' && elem <= b'Z' }).collect::<Vec<u8>>();
 
     filtered
