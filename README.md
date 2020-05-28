@@ -1,5 +1,8 @@
 # Codebreakers
 
+![Rust](https://github.com/eanyanwu/codebreakers/workflows/Rust/badge.svg)
+
+
 Implementation the various techniques mentioned in David Khan's book "The Codebreakers"
 
 # Why are you doing this?
