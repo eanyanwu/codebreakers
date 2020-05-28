@@ -1,7 +1,6 @@
 # Codebreakers
 
-![Rust](https://github.com/eanyanwu/codebreakers/workflows/Rust/badge.svg)
-
+![Codebreakers CI](https://github.com/eanyanwu/codebreakers/workflows/Codebreakers%20CI/badge.svg)
 
 Implementation the various techniques mentioned in David Khan's book "The Codebreakers"
 
