@@ -55,15 +55,15 @@ impl TryFrom<u8> for AsciiUppercaseByte {
 }
 
 /// Uppercases, and removes any non-alphabetic characters from the text
-pub fn sanitize_text(input: &[u8]) -> Vec<AsciiUppercaseByte> {
+pub fn sanitize_text(input: &[u8]) -> Result<Vec<AsciiUppercaseByte>, errors::Error> {
     // Uppercase everything
     let uppercased = input.to_ascii_uppercase();
 
     // Remove any non-alphabetic characters
     let filtered = uppercased.into_iter()
                                 .filter(|&elem| { elem >= b'A' && elem <= b'Z' })
-                                .map(|elem| AsciiUppercaseByte::try_from(elem).unwrap())
-                                .collect::<Vec<AsciiUppercaseByte>>();
+                                .map(|elem| Ok(AsciiUppercaseByte::try_from(elem)?))
+                                .collect::<Result<Vec<AsciiUppercaseByte>, errors::Error>>();
 
     filtered
 }
