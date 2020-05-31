@@ -36,12 +36,12 @@ fn main() {
 
             match frequency_cmd.subcommand() {
                 ("single", Some(_)) => {
-                    let frequencies = frequency::single_letter(&text);
+                    let frequencies = frequency::single_letter(&text).unwrap();
         
                     frequency::print_single_letter_histogram(&frequencies);
                 },
                 ("digram", Some(_)) => {
-                    let frequencies = frequency::digram(&text);
+                    let frequencies = frequency::digram(&text).unwrap();
 
                     frequency::print_digram_frequencies(&frequencies);
                 },

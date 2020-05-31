@@ -6,12 +6,13 @@
 
 use crate::common;
 use crate::common::AsciiUppercaseByte;
+use crate::errors;
 use std::convert::TryFrom;
 use std::collections::HashMap;
 
 /// Creates a dictionary of letter frequency counts for each letter that appears in `text`
-pub fn single_letter(text: &[u8]) -> HashMap<AsciiUppercaseByte, usize> {
-    let text = common::sanitize_text(text);
+pub fn single_letter(text: &[u8]) -> Result<HashMap<AsciiUppercaseByte, usize>, errors::Error> {
+    let text = common::sanitize_text(text)?;
     let mut counts = HashMap::new();
 
     for character in text {
@@ -20,14 +21,14 @@ pub fn single_letter(text: &[u8]) -> HashMap<AsciiUppercaseByte, usize> {
                 .or_insert(1usize);
     }
 
-    counts
+    Ok(counts)
 }
 
 type AsciiUppercaseDigram = (AsciiUppercaseByte, AsciiUppercaseByte);
 
 /// Creates a dictionary of digram frequencies for each pair of letters that appears in `text`
-pub fn digram(text: &[u8]) -> HashMap<AsciiUppercaseDigram, usize> {
-    let text = common::sanitize_text(text);
+pub fn digram(text: &[u8]) -> Result<HashMap<AsciiUppercaseDigram, usize>, errors::Error> {
+    let text = common::sanitize_text(text)?;
     let mut counts = HashMap::new();
 
     // Note that i'm stopping iteration at the next to last character since the loop
@@ -39,7 +40,7 @@ pub fn digram(text: &[u8]) -> HashMap<AsciiUppercaseDigram, usize> {
                 .or_insert(1usize);
     }
     
-    counts
+    Ok(counts)
 }
 
 /// Prints a single letter frequency map to the console
@@ -90,7 +91,7 @@ mod tests {
 
     #[test]
     fn test_single_letter() {
-        let freq = frequency::single_letter(b"Over the horizon\nShe's smooth sailing");
+        let freq = frequency::single_letter(b"Over the horizon\nShe's smooth sailing").unwrap();
 
         let upper_case_o = AsciiUppercaseByte::try_from(b'O').unwrap();
         let upper_case_z = AsciiUppercaseByte::try_from(b'Z').unwrap();
@@ -101,7 +102,7 @@ mod tests {
 
     #[test]
     fn test_digram() {
-        let freq = frequency::digram(b"But there wasn't any water in the wishing well");
+        let freq = frequency::digram(b"But there wasn't any water in the wishing well").unwrap();
 
         let in_digram = (AsciiUppercaseByte::try_from(b'I').unwrap(), AsciiUppercaseByte::try_from(b'N').unwrap());
 

@@ -36,12 +36,11 @@
 use crate::errors::Error;
 use crate::common;
 use crate::common::AsciiUppercaseByte;
-use std::collections::HashMap;
 
 /// Enciphers `plain_text` with `key` usingi regular columnar transposition
 pub fn encipher(key: &[u8], plain_text: &[u8]) -> Result<String, Error> {
-    let key = common::sanitize_text(key).into_iter().map(|x| x.get_byte()).collect::<Vec<u8>>();
-    let plain_text = common::sanitize_text(plain_text);
+    let key = create_key(&common::sanitize_text(key)?);
+    let plain_text = common::sanitize_text(plain_text)?;
 
     let mut tagged_text = Vec::new();
 
@@ -50,15 +49,12 @@ pub fn encipher(key: &[u8], plain_text: &[u8]) -> Result<String, Error> {
         tagged_text.push((key[idx % key.len()], p));
     }
 
-    //let rearranged_text = Vec::new();
+    // Step 2 & 3
+    tagged_text.sort_by_key(|k| k.0);
 
-    // Step 2: Re-arrange the columns in a manner defined by the key
-    for i in 0..key.len() {
+    let enciphered = tagged_text.iter().map(|x| x.1).collect::<Vec<AsciiUppercaseByte>>();
 
-    }
-
-
-    unimplemented!()
+    Ok(common::format_output(enciphered))
 }
 
 /// Create a columnar transposition key out of a key phrase
@@ -142,12 +138,12 @@ pub fn create_key(key_phrase: &[AsciiUppercaseByte]) -> Vec<usize> {
 #[cfg(test)]
 mod tests {
     use crate::common;
-    use crate::columnar_transposition::{create_key};
+    use crate::columnar_transposition::{create_key, encipher};
     use quickcheck::quickcheck;
 
     #[test]
     fn test_key_creation() {
-        let key_phrase = common::sanitize_text(b"BACD");
+        let key_phrase = common::sanitize_text(b"BACD").unwrap();
 
         let key = create_key(&key_phrase);
 
@@ -156,16 +152,34 @@ mod tests {
 
     #[test]
     fn test_key_creation_repeated_character() {
-        let key_phrase = common::sanitize_text(b"BAACDDZZXY");
+        let key_phrase = common::sanitize_text(b"BAACDDZZXY").unwrap();
 
         let key = create_key(&key_phrase);
 
         assert_eq!(key, vec![2, 0, 1, 3, 4, 5, 8, 9, 6, 7]);
     }
 
+    #[test]
+    fn test_columnar_transposition() {
+        let enciphered = encipher(b"ZEBRAS", b"WE ARE DISCOVERED. FLEE AT ONCE").unwrap();
+
+        assert_eq!(
+            "EVLNA CDTES EAROF ODEEC WIREE",
+            enciphered
+        );
+
+
+        let enciphered = encipher(b"CAB", b"ATTACK AT DAWN").unwrap();
+
+        assert_eq!(
+            "TCTWT KDNAA AA",
+            enciphered
+        );
+    }
+
     quickcheck! {
         fn key_is_always_increasing(key_phrase: Vec<u8>) -> bool {
-            let key_phrase = common::sanitize_text(&key_phrase);
+            let key_phrase = common::sanitize_text(&key_phrase).unwrap();
 
             let mut key = create_key(&key_phrase);
 

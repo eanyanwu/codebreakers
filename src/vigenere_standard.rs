@@ -15,9 +15,9 @@ use crate::common;
 
 /// Encipher `plain_text` with the Vigenere cipher under the key `key`
 pub fn encipher(key: &[u8], plain_text: &[u8])-> Result<String, Error> {
-    let key = common::sanitize_text(key);
+    let key = common::sanitize_text(key)?;
 
-    let plain_text = common::sanitize_text(plain_text);
+    let plain_text = common::sanitize_text(plain_text)?;
     
     // If no key was passed, we don't encrypt
     if key.len() == 0 {
@@ -33,9 +33,9 @@ pub fn encipher(key: &[u8], plain_text: &[u8])-> Result<String, Error> {
 
 /// Decipher `cipher_text` with the Vigenere cipher under the key `key`
 pub fn decipher(key: &[u8], cipher_text: &[u8]) -> Result<String, Error> {
-    let key = common::sanitize_text(key);
+    let key = common::sanitize_text(key)?;
 
-    let cipher_text = common::sanitize_text(cipher_text);
+    let cipher_text = common::sanitize_text(cipher_text)?;
 
     // If no key was passed, we don't decrypt
     if key.len() == 0 {
@@ -116,9 +116,9 @@ mod tests {
 
     #[test]
     fn test_add_bytes() {
-        let left = common::sanitize_text(b"ABC");
-        let right = common::sanitize_text(b"BBB");
-        let expected = common::sanitize_text(b"BCD");
+        let left = common::sanitize_text(b"ABC").unwrap();
+        let right = common::sanitize_text(b"BBB").unwrap();
+        let expected = common::sanitize_text(b"BCD").unwrap();
         
         let actual = vigenere_standard::add_bytes(&left, &right);
 
@@ -127,9 +127,9 @@ mod tests {
 
     #[test]
     fn test_subtract_bytes() {
-        let left = common::sanitize_text(b"ABC");
-        let right = common::sanitize_text(b"BBB");
-        let expected = common::sanitize_text(b"ZAB");
+        let left = common::sanitize_text(b"ABC").unwrap();
+        let right = common::sanitize_text(b"BBB").unwrap();
+        let expected = common::sanitize_text(b"ZAB").unwrap();
 
         let actual = vigenere_standard::subtract_bytes(&left, &right);
 
@@ -153,7 +153,7 @@ mod tests {
         fn deciphering_does_nothing_when_key_is_a(cipher_text: Vec<u8>) -> bool {
             let res = vigenere_standard::decipher(b"A", &cipher_text).unwrap();
 
-            res == common::format_output(common::sanitize_text(&cipher_text))
+            res == common::format_output(common::sanitize_text(&cipher_text).unwrap())
         }
     }
 
@@ -162,7 +162,7 @@ mod tests {
             let res = vigenere_standard::encipher(b"A", &plain_text).unwrap();
 
             // The output with a key of a should just be the input, sanitized and formatted
-            res == common::format_output(common::sanitize_text(&plain_text))
+            res == common::format_output(common::sanitize_text(&plain_text).unwrap())
         }
     }
 
