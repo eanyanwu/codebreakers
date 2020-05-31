@@ -1,4 +1,4 @@
-//! From David Khan's "Codebreakers":
+//! # From David Khan's "Codebreakers":
 //! 
 //! > Cryptanalysis rests upon the fact that the letters of language have "personalities" of their own. [..]
 //! > Though in a cryptogram they wear disguises, the cryptanalys observes their actions and idiosyncrasies, and infers 

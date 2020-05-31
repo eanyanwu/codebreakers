@@ -1,4 +1,4 @@
-//! Implementation of the Vigenere autokey cipher
+//! # Implementation of the Vigenere autokey cipher
 //! 
 //! In the autokey system, the plain text is used as the key.
 //! To start, both parties agree on a _priming key_ K0
