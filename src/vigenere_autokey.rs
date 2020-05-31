@@ -16,6 +16,7 @@ use crate::errors::Error;
 use crate::common;
 use crate::vigenere_standard;
 
+/// Enciphers the `plain_text` with `priming_key` using the Vigenere autokey system 
 pub fn encipher(priming_key: &[u8], plain_text: &[u8]) -> Result<String, Error> {
     let mut key = common::sanitize_text(priming_key);
 
@@ -34,6 +35,7 @@ pub fn encipher(priming_key: &[u8], plain_text: &[u8]) -> Result<String, Error> 
     Ok(common::format_output(enciphered))
 }
 
+/// Deciphers `cipher_text` with `priming_key` using the Vigenere autokey system
 pub fn decipher(priming_key: &[u8], cipher_text: &[u8]) -> Result<String, Error> {
     let mut key = common::sanitize_text(priming_key);
 

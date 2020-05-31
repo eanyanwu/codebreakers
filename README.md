@@ -14,7 +14,8 @@ I am also writing up [notes on each chapter](https://ezeanyinabia.wordpress.com/
 
 - [x] The standard Vigenere cipher
 - [x] The autokey Vigenere cipher
-- [x] Letter frequency analysis
+- [x] Single letter frequency analysis
+- [x] Digram frequency analysis
 
 
 # Examples:
@@ -47,7 +48,7 @@ cat cipher_text.txt
 > YCOCK PITOF WAR
 ```
 
-### Letter frequency analysis:
+### Single frequency analysis:
 
 It's interesting to see how the histogram differs when you give it plain text vs cipher text.
 

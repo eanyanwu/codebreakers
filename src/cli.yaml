@@ -24,5 +24,10 @@ subcommands:
                   takes_value: true
                   required: true
                   help: The key to use for deciphering
-  - letter-frequency:
-      about: Visualize the letter frequencies
+  - frequency:
+      about: Vizualize letter frequencies
+      subcommands:
+        - single:
+            about: Vizualize single letter frequencies
+        - digram:
+            about: Vizualize digram frequencies
