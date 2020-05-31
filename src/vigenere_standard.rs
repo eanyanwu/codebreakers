@@ -1,4 +1,4 @@
-//! Implementation of the standard Vigenere cipher
+//! # Implementation of the standard Vigenere cipher
 //! 
 //! If _P_ is the plain text, _C_ the cipher text and _K_ the key,
 //! then abstractly speaking, enciphering is:
