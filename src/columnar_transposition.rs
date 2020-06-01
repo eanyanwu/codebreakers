@@ -36,10 +36,11 @@
 use crate::errors::Error;
 use crate::common;
 use crate::common::AsciiUppercaseByte;
+use std::collections::VecDeque;
 
-/// Enciphers `plain_text` with `key` usingi regular columnar transposition
-pub fn encipher(key: &[u8], plain_text: &[u8]) -> Result<String, Error> {
-    let key = create_key(&common::sanitize_text(key)?);
+/// Enciphers `plain_text` with `key_phrase` using regular columnar transposition
+pub fn encipher(key_phrase: &[u8], plain_text: &[u8]) -> Result<String, Error> {
+    let key = create_key(&common::sanitize_text(key_phrase)?);
     let plain_text = common::sanitize_text(plain_text)?;
 
     let mut tagged_text = Vec::new();
@@ -56,6 +57,64 @@ pub fn encipher(key: &[u8], plain_text: &[u8]) -> Result<String, Error> {
 
     Ok(common::format_output(enciphered))
 }
+
+// TODO: Explain the deciphering process better. It's a bit tricky.
+
+/// Deciphers `cipher_text` with `key_phrase` using regular columna transposition
+pub fn decipher(key_phrase: &[u8], cipher_text: &[u8]) -> Result<String, Error> {
+    let key = create_key(&common::sanitize_text(key_phrase)?);
+    let cipher_text = common::sanitize_text(&cipher_text)?;
+
+    let mut columns = vec![VecDeque::new(); key.len()];
+
+    {
+        let cipher_text = cipher_text.clone();
+        let mut counter = 0;
+
+        for i in 0..key.len() {
+            // Work out the heigth of the ith column
+    
+            // All columns are at least `cipher_text.len() / key.len()` high
+            let base_height = cipher_text.len() / key.len();
+    
+            let remainder =  cipher_text.len() % key.len(); 
+    
+            let height = if remainder == 0 {
+                // If the key evenly divides the cipher text, we are done
+                base_height
+            } else {
+                // If it doesn't, use the remainder to figure out if this column is 
+                // longer
+                if key[..remainder].contains(&i) {
+                    base_height + 1
+                }
+                else {
+                    base_height
+                }
+            };
+
+            let column = cipher_text[counter..counter + height].iter().copied().collect();
+
+            counter += height;
+
+            columns[i] = column;
+        }
+    }
+
+    let mut deciphered = Vec::new();
+
+    for i in 0..cipher_text.len() {
+        let k = key[i % key.len()];
+        let p = columns[k].pop_front().unwrap();
+
+        deciphered.push(p);
+    }
+    
+    Ok(common::format_output(deciphered))
+}
+
+// TODO: Provide a clearer explanation thatn what I have here. Converting from a keyphrase
+// to a columna transposition key is a bit tricky.
 
 /// Create a columnar transposition key out of a key phrase
 /// 
@@ -138,7 +197,7 @@ pub fn create_key(key_phrase: &[AsciiUppercaseByte]) -> Vec<usize> {
 #[cfg(test)]
 mod tests {
     use crate::common;
-    use crate::columnar_transposition::{create_key, encipher};
+    use crate::columnar_transposition::{create_key, encipher, decipher};
     use quickcheck::quickcheck;
 
     #[test]
@@ -168,12 +227,25 @@ mod tests {
             enciphered
         );
 
+        let deciphered = decipher(b"ZEBRAS", b"EVLNA CDTES EAROF ODEEC WIREE").unwrap();
+
+        assert_eq!(
+            "WEARE DISCO VERED FLEEA TONCE",
+            deciphered
+        );
 
         let enciphered = encipher(b"CAB", b"ATTACK AT DAWN").unwrap();
 
         assert_eq!(
             "TCTWT KDNAA AA",
             enciphered
+        );
+
+        let deciphered = decipher(b"CAB", b"TCTWT KDNAA AA").unwrap();
+
+        assert_eq!(
+            "ATTAC KATDA WN",
+            deciphered
         );
     }
 
