@@ -5,7 +5,7 @@ use codebreakers::frequency;
 use std::io;
 use std::io::Read;
 
-
+// TODO: Update the cli in a much saner way pls.
 fn main() {
     let yaml = load_yaml!("cli.yaml");
     let args = App::from_yaml(yaml).get_matches();

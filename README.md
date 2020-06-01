@@ -14,6 +14,7 @@ I am also writing up [notes on each chapter](https://ezeanyinabia.wordpress.com/
 
 - [x] The standard Vigenere cipher
 - [x] The autokey Vigenere cipher
+- [x] The columnar transposition cipher
 - [x] Single letter frequency analysis
 - [x] Digram frequency analysis
 

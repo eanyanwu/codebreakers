@@ -24,6 +24,27 @@ subcommands:
                   takes_value: true
                   required: true
                   help: The key to use for deciphering
+  - column-transposition:
+      about: Columnar transposition cipher
+      subcommands:
+        - encipher:
+            about: Encipher
+            args:
+              - key:
+                  short: k
+                  long: key
+                  takes_value: true
+                  required: true
+                  help: The key to use for enciphering
+        - decipher:
+            about: Decipher
+            args:
+              - key:
+                  short: k
+                  long: key
+                  takes_value: true
+                  required: true
+                  help: The key to use for deciphering
   - frequency:
       about: Vizualize letter frequencies
       subcommands:
