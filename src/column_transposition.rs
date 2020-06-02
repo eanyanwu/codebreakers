@@ -1,6 +1,6 @@
-//! # Implementation of columnar transposition
+//! # Implementation of columntransposition
 //! 
-//! The basic method of columnar transposition is to write your message into a
+//! The basic method of column transposition is to write your message into a
 //! set number of columns, re-arrange the columns in a manner defined  by
 //! the key, then read out the cipher text column-wise
 //! 
@@ -38,7 +38,7 @@ use crate::common;
 use crate::common::AsciiUppercaseByte;
 use std::collections::VecDeque;
 
-/// Enciphers `plain_text` with `key_phrase` using regular columnar transposition
+/// Enciphers `plain_text` with `key_phrase` using regular column transposition
 pub fn encipher(key_phrase: &[u8], plain_text: &[u8]) -> Result<String, Error> {
     let key = create_key(&common::sanitize_text(key_phrase)?);
     let plain_text = common::sanitize_text(plain_text)?;
@@ -116,7 +116,7 @@ pub fn decipher(key_phrase: &[u8], cipher_text: &[u8]) -> Result<String, Error> 
 // TODO: Provide a clearer explanation thatn what I have here. Converting from a keyphrase
 // to a columna transposition key is a bit tricky.
 
-/// Create a columnar transposition key out of a key phrase
+/// Create a column transposition key out of a key phrase
 /// 
 /// The key is created by "counting off" the letters
 /// in the key phrase in order of their values.
@@ -197,7 +197,7 @@ pub fn create_key(key_phrase: &[AsciiUppercaseByte]) -> Vec<usize> {
 #[cfg(test)]
 mod tests {
     use crate::common;
-    use crate::columnar_transposition::{create_key, encipher, decipher};
+    use crate::column_transposition::{create_key, encipher, decipher};
     use quickcheck::quickcheck;
 
     #[test]
@@ -219,7 +219,7 @@ mod tests {
     }
 
     #[test]
-    fn test_columnar_transposition() {
+    fn test_column_transposition() {
         let enciphered = encipher(b"ZEBRAS", b"WE ARE DISCOVERED. FLEE AT ONCE").unwrap();
 
         assert_eq!(
