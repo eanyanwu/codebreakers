@@ -1,5 +1,6 @@
-//! # From David Khan's "Codebreakers":
+//! # Various cryptanalytical techniques.
 //! 
+//! A quote from David Khan's "The Codebreakers":
 //! > Cryptanalysis rests upon the fact that the letters of language have "personalities" of their own. [..]
 //! > Though in a cryptogram they wear disguises, the cryptanalys observes their actions and idiosyncrasies, and infers 
 //! > their identity from these traits
@@ -85,13 +86,13 @@ pub fn print_digram_frequencies(map: &HashMap<AsciiUppercaseDigram, usize>) {
 
 #[cfg(test)]
 mod tests {
-    use crate::frequency;
+    use crate::analysis;
     use crate::common::AsciiUppercaseByte;
     use std::convert::TryFrom;
 
     #[test]
     fn test_single_letter() {
-        let freq = frequency::single_letter(b"Over the horizon\nShe's smooth sailing").unwrap();
+        let freq = analysis::single_letter(b"Over the horizon\nShe's smooth sailing").unwrap();
 
         let upper_case_o = AsciiUppercaseByte::try_from(b'O').unwrap();
         let upper_case_z = AsciiUppercaseByte::try_from(b'Z').unwrap();
@@ -102,7 +103,7 @@ mod tests {
 
     #[test]
     fn test_digram() {
-        let freq = frequency::digram(b"But there wasn't any water in the wishing well").unwrap();
+        let freq = analysis::digram(b"But there wasn't any water in the wishing well").unwrap();
 
         let in_digram = (AsciiUppercaseByte::try_from(b'I').unwrap(), AsciiUppercaseByte::try_from(b'N').unwrap());
 

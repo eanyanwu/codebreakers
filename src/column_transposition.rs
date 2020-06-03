@@ -66,42 +66,47 @@
 
 
 use crate::errors::Error;
-use crate::common;
-use crate::common::AsciiUppercaseByte;
+use crate::common::{AsciiUppercaseByte, sanitize_text, format_output};
 use std::collections::VecDeque;
 
-/// Enciphers `plain_text` with `key_phrase` using regular column transposition
-pub fn encipher(key_phrase: &[u8], plain_text: &[u8]) -> Result<String, Error> {
-    let key = create_key(&common::sanitize_text(key_phrase)?);
-    let plain_text = common::sanitize_text(plain_text)?;
+/// Enciphers `plain_text` with `keyphrase` using regular column transposition
+pub fn encipher(keyphrase: &[u8], plain_text: &[u8]) -> Result<String, Error> {
+    // Step 1
+    let key = create_key(&sanitize_text(keyphrase)?);
+
+    let plain_text = sanitize_text(plain_text)?;
 
     let mut tagged_text = Vec::new();
 
-    // Step 1: Tag every character in the plan text with its column number
+    // Step 2: Tag every character in the plan text with its column number
     for (idx, &p) in plain_text.iter().enumerate() {
         tagged_text.push((key[idx % key.len()], p));
     }
 
-    // Step 2 & 3
+    // Step 3 & 4
     tagged_text.sort_by_key(|k| k.0);
 
     let enciphered = tagged_text.iter().map(|x| x.1).collect::<Vec<AsciiUppercaseByte>>();
 
-    Ok(common::format_output(enciphered))
+    Ok(format_output(enciphered))
 }
 
-// TODO: Explain the deciphering process better. It's a bit tricky.
+/// Deciphers `cipher_text` with `keyphrase` using regular columna transposition
+pub fn decipher(keyphrase: &[u8], cipher_text: &[u8]) -> Result<String, Error> {
+    let key = create_key(&sanitize_text(keyphrase)?);
 
-/// Deciphers `cipher_text` with `key_phrase` using regular columna transposition
-pub fn decipher(key_phrase: &[u8], cipher_text: &[u8]) -> Result<String, Error> {
-    let key = create_key(&common::sanitize_text(key_phrase)?);
-    let cipher_text = common::sanitize_text(&cipher_text)?;
+    let cipher_text = sanitize_text(&cipher_text)?;
 
+    // This represents matrix we will try to fill with our cipher text
+    // It is a list of queues where the inner queue represents a single column
+    // The outer list has `key-length` elements, since there are `key-length` columns
     let mut columns = vec![VecDeque::new(); key.len()];
 
     {
+        // Our goal here is to place the cipher text in the correct columns.
         let cipher_text = cipher_text.clone();
-        let mut counter = 0;
+
+        let mut cursor = 0;
 
         for i in 0..key.len() {
             // Work out the heigth of the ith column
@@ -125,9 +130,9 @@ pub fn decipher(key_phrase: &[u8], cipher_text: &[u8]) -> Result<String, Error> 
                 }
             };
 
-            let column = cipher_text[counter..counter + height].iter().copied().collect();
+            let column = cipher_text[cursor..cursor + height].iter().copied().collect();
 
-            counter += height;
+            cursor += height;
 
             columns[i] = column;
         }
@@ -135,6 +140,8 @@ pub fn decipher(key_phrase: &[u8], cipher_text: &[u8]) -> Result<String, Error> 
 
     let mut deciphered = Vec::new();
 
+    // We now zip through the `columns` structure, popping 
+    // items off in the order ordained by our lord and savior, the KEY
     for i in 0..cipher_text.len() {
         let k = key[i % key.len()];
         let p = columns[k].pop_front().unwrap();
@@ -142,84 +149,37 @@ pub fn decipher(key_phrase: &[u8], cipher_text: &[u8]) -> Result<String, Error> 
         deciphered.push(p);
     }
     
-    Ok(common::format_output(deciphered))
+    Ok(format_output(deciphered))
 }
 
 /// Create a column transposition key out of a keyphrase
+///
+/// Keys are 0-indexed
 /// 
-/// 
-/// The tricky part is that when you encounter duplicate letters in the key
-/// phrase, you should still increase the counter. So if there are two 'A's, 
-/// the first will have have the value 0, and the second will have the value 1.
-/// 
-/// Note: My keys are 0-indexed
 /// # Examples:
 /// 
 /// - The key phrase "BACD" corresponds to the key  "1023"
 /// 
 /// - The key phrase "BAACDD" corresponds to the key "201345"
-/// 
-pub fn create_key(key_phrase: &[AsciiUppercaseByte]) -> Vec<usize> {
-    // Implementing this was surprisingly tricky.
-    // The tricky part being that when the keyphrase has duplicate letters
-    // we still keep counting, which means subsequent 
-    // Assign numeric values to each ascii letter
-    let key_phrase_values = key_phrase.iter()
-                            .map(|elem| elem.get_byte() - b'A')
-                            .collect::<Vec<u8>>();
+fn create_key(keyphrase: &[AsciiUppercaseByte]) -> Vec<usize> {
+    let keyphrase = keyphrase.iter().map(|x| x.get_byte()).collect::<Vec<u8>>();
 
-    // Detect which numeric values appear more than once
-    // So a duplicates vector containing [ 2, 1, 1, 2] would indicate that
-    // 'A' appears twice, 'B' once, 'C' once and 'D' twice
-    let mut duplicates = vec![0usize; 26];
+    let mut sorted_keyphrase = keyphrase.clone();
 
-    for v in key_phrase_values.clone() {
-        duplicates[v as usize] += 1;
-    }
-
-    // In the loop that is to follow, we use this strucutre to hold
-    // the number of times we have seen a particular key_phrase character
-    // At the end of the loop, it should be equal to the `duplicates` vector
-    let mut counter = vec![0usize; 26];
-
-    // The algorithm goes something like this:
-    // To figure out what the final value is for each key phrase character, do two things.
-    // 1. Assume the final value is the count of lesser characters that appear in the key.
-    // 2. Add to this the count of duplicates for lesser values.
-    // 3. Add to this the corresponding counter value
-    // 4. Increment the counter value
-    // 5. You now have the final key value
+    sorted_keyphrase.sort();
 
     let mut key = Vec::new();
 
-    for v in key_phrase_values.clone() {
-        let key_phrase_value = v as usize;
+    for i in 0..keyphrase.len() {
+        let idx = sorted_keyphrase.iter().position(|&x| { x == keyphrase[i] }).unwrap();
 
-        // 1
-        let mut final_value = duplicates.iter()
-                                        .take(key_phrase_value)
-                                        .filter(|&x| *x > 0)
-                                        .count();
+        key.push(idx);
 
-        // 2
-        let lesser_value_duplicates = duplicates.iter()
-                                                .take(v as usize)
-                                                .filter(|&x| { *x > 1})
-                                                .map(|&x| { x - 1 })
-                                                .sum::<usize>();
-
-        final_value += lesser_value_duplicates;
-
-        // 3
-        final_value += counter[key_phrase_value];
-
-        // 4
-        counter[key_phrase_value] += 1;
-
-        key.push(final_value);
+        // Change the value of the item we just found to 255, so we don't re-find it
+        // This is important when the keyphrase has repeated letters.
+        // I chose the 255 because it is clearly out of the range of allowed AsciiUppercaseByte values
+        sorted_keyphrase[idx] = 255;
     }
-
-    assert_eq!(counter, duplicates);
 
     key
 }
