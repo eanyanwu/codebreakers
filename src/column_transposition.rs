@@ -1,36 +1,68 @@
-//! # Implementation of columntransposition
+//! # Implementation of column transposition
 //! 
 //! The basic method of column transposition is to write your message into a
 //! set number of columns, re-arrange the columns in a manner defined  by
 //! the key, then read out the cipher text column-wise
 //! 
-//! Example:
-//! Message: "ATTACK AT DAWN"
-//! Key: 3 1 2
+//! Deciphering is a bit tricker because depending on the length of the message,
+//! the columns won't have the same height.
 //! 
-//! Step 1: Write the message into a set number of columns
+//! # Example:
+//! 
+//! ## Enciphering
+//! 
+//! Message to encipher: "NO JUSTICE NO PEACE"
+//!
+//! Keyphrase: CAB
+//!
+//! - Step 1: Convert the keyphrase to a numeric key:
+//! 
+//! The letters of the keyphrase are counted off in order of their appearance in the alphabet.  
+//! So our key is "3 1 2"
+//! 
+//! - Step 2: Write the message into key-length wide columns:
+//! 
 //! 
 //! ```text
 //! 3  1  2
 //! -------
-//! A  T  T
-//! A  C  K
-//! A  T  D
-//! A  W  N
+//! N  O  J
+//! U  S  T
+//! I  C  E
+//! N  O  P
+//! E  A  C
+//! E
 //! ```
 //! 
-//! Step 2: Re-arrange the columns in a manner defined by the key
+//! - Step 3: Re-arrange the columns so that the keys now appear in ascending order:
 //! 
 //! ```text
 //! 1  2  3
 //! -------
-//! T  T  A
-//! C  K  A
-//! T  D  A
-//! W  N  A
+//! O  J  N
+//! S  T  U
+//! C  E  I
+//! O  P  N
+//! A  C  E
+//!       E
 //! ```
-//! Step 3: Read out the text column-wise
-//! Cipher text: TCTWT KDNAA AA
+//! - Step 4: Read out the text column-wise: 
+//! 
+//! Cipher text: OSCOA JTEPC NUINE E
+//! 
+//! ## Deciphering
+//! 
+//! The challenge with deciphering is that you need to reconstruct the table from the 3rd step above.  
+//! Generally speaking you will have at most two different column lengths. The length of the shortest column
+//! is the quotient you get when you devide the message length by the key length.  
+//! In our previous example, this is `5 = 15 (message length ) / 3 (key length)`  
+//! If there is any remainder to that division, that tells us some columns are one longer than this "base height".  
+//! The remainder also offers a clue as to which columns have this extra row. If the remainder is 1, then only the 
+//! column under the first key symbol (3) is longer. If the remainder is 2, then only the columns under the first two key
+//! symbols (3 & 1) are longer. And so on.
+//! 
+//! 
+//! Enough talk. Let's get to work.
 
 
 use crate::errors::Error;
@@ -113,13 +145,8 @@ pub fn decipher(key_phrase: &[u8], cipher_text: &[u8]) -> Result<String, Error> 
     Ok(common::format_output(deciphered))
 }
 
-// TODO: Provide a clearer explanation thatn what I have here. Converting from a keyphrase
-// to a columna transposition key is a bit tricky.
-
-/// Create a column transposition key out of a key phrase
+/// Create a column transposition key out of a keyphrase
 /// 
-/// The key is created by "counting off" the letters
-/// in the key phrase in order of their values.
 /// 
 /// The tricky part is that when you encounter duplicate letters in the key
 /// phrase, you should still increase the counter. So if there are two 'A's, 
@@ -133,6 +160,9 @@ pub fn decipher(key_phrase: &[u8], cipher_text: &[u8]) -> Result<String, Error> 
 /// - The key phrase "BAACDD" corresponds to the key "201345"
 /// 
 pub fn create_key(key_phrase: &[AsciiUppercaseByte]) -> Vec<usize> {
+    // Implementing this was surprisingly tricky.
+    // The tricky part being that when the keyphrase has duplicate letters
+    // we still keep counting, which means subsequent 
     // Assign numeric values to each ascii letter
     let key_phrase_values = key_phrase.iter()
                             .map(|elem| elem.get_byte() - b'A')
