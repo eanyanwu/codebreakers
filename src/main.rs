@@ -2,7 +2,7 @@ use clap::{App, SubCommand, Arg, ArgMatches};
 use codebreakers::vigenere_standard;
 use codebreakers::vigenere_autokey;
 use codebreakers::column_transposition;
-use codebreakers::frequency;
+use codebreakers::analysis;
 use std::io;
 use std::io::Read;
 
@@ -133,10 +133,10 @@ fn handle_analyze_command(arg: &ArgMatches) {
     
     match arg.value_of("variant") {
         Some("single-letter-frequency") => {
-            frequency::print_single_letter_histogram(&frequency::single_letter(&input).unwrap())
+            analysis::print_single_letter_histogram(&analysis::single_letter(&input).unwrap())
         },
         Some("digram-frequency") => {
-            frequency::print_digram_frequencies(&frequency::digram(&input).unwrap())
+            analysis::print_digram_frequencies(&analysis::digram(&input).unwrap())
         },
         Some(_) => unimplemented!(),
         None => unreachable!()

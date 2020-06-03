@@ -18,7 +18,7 @@ I am also writing up [notes on each chapter](https://ezeanyinabia.wordpress.com/
 - [x] Single letter frequency analysis
 - [x] Digram frequency analysis
 
+# Generate documentation
 
-# Examples:
+`cargo doc  --no-deps --lib --open`
 
-TODO...
